@@ -1,6 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, FileText } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   LineChart,
   Line,
@@ -13,10 +20,10 @@ import {
 
 const data = [
   { name: "Jan", sales: 4000 },
-  { name: "Feb", sales: 3000 },
+  { name: "Fev", sales: 3000 },
   { name: "Mar", sales: 2000 },
-  { name: "Apr", sales: 2780 },
-  { name: "May", sales: 1890 },
+  { name: "Abr", sales: 2780 },
+  { name: "Mai", sales: 1890 },
   { name: "Jun", sales: 2390 },
 ];
 
@@ -24,10 +31,55 @@ export const SalesSummary = () => {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Sales Summary</CardTitle>
-        <Button className="bg-primary hover:bg-primary/90">
-          <Plus className="mr-2 h-4 w-4" /> Register Sale
-        </Button>
+        <div>
+          <CardTitle>Sumário de Vendas</CardTitle>
+          <div className="flex gap-2 mt-4">
+            <Select defaultValue="2024">
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Ano" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2022">2022</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select defaultValue="all">
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Mês" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="1">Janeiro</SelectItem>
+                <SelectItem value="2">Fevereiro</SelectItem>
+                <SelectItem value="3">Março</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select defaultValue="all">
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Semana" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="1">Semana 1</SelectItem>
+                <SelectItem value="2">Semana 2</SelectItem>
+                <SelectItem value="3">Semana 3</SelectItem>
+                <SelectItem value="4">Semana 4</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2">
+            <FileText className="h-4 w-4" />
+            Ver Todas as Vendas
+          </Button>
+          <Button className="bg-primary hover:bg-primary/90">
+            <Plus className="mr-2 h-4 w-4" /> Registar Venda
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold mb-4">€245,890</div>

@@ -13,10 +13,10 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
-  { icon: Home, label: "Sales Summary", path: "/" },
-  { icon: FileText, label: "Pending Contracts", path: "/contracts" },
-  { icon: BarChart3, label: "Team Metrics", path: "/metrics" },
-  { icon: Users, label: "Profile", path: "/profile" },
+  { icon: Home, label: "Sumário de Vendas", path: "/" },
+  { icon: FileText, label: "Contratos Pendentes", path: "/contracts" },
+  { icon: BarChart3, label: "Métricas da Equipa", path: "/metrics" },
+  { icon: Users, label: "Perfil", path: "/profile" },
 ];
 
 export const DashboardSidebar = () => {
@@ -25,9 +25,12 @@ export const DashboardSidebar = () => {
 
   return (
     <Sidebar>
+      <div className="p-4">
+        <img src="/vexor-logo.png" alt="Vexor" className="h-8 w-auto" />
+      </div>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
