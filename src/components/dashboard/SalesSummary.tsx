@@ -1,6 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Filter } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -28,47 +36,66 @@ const data = [
 ];
 
 export const SalesSummary = () => {
+  const currentMonth = new Date().toLocaleString('pt-PT', { month: 'long' });
+  const currentYear = new Date().getFullYear();
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Sumário de Vendas</CardTitle>
-          <div className="flex gap-2 mt-4">
-            <Select defaultValue="2024">
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Ano" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2022">2022</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Mês" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="1">Janeiro</SelectItem>
-                <SelectItem value="2">Fevereiro</SelectItem>
-                <SelectItem value="3">Março</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Semana" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="1">Semana 1</SelectItem>
-                <SelectItem value="2">Semana 2</SelectItem>
-                <SelectItem value="3">Semana 3</SelectItem>
-                <SelectItem value="4">Semana 4</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-2 mt-4">
+            <span className="text-sm text-muted-foreground">
+              {currentMonth} {currentYear}
+            </span>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filtros
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Filtros</SheetTitle>
+                  <SheetDescription>
+                    Ajuste os filtros para visualizar dados específicos
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="space-y-4 mt-4">
+                  <Select defaultValue={currentYear.toString()}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Ano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2024">2024</SelectItem>
+                      <SelectItem value="2023">2023</SelectItem>
+                      <SelectItem value="2022">2022</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select defaultValue={currentMonth}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Mês" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Janeiro">Janeiro</SelectItem>
+                      <SelectItem value="Fevereiro">Fevereiro</SelectItem>
+                      <SelectItem value="Março">Março</SelectItem>
+                      <SelectItem value="Abril">Abril</SelectItem>
+                      <SelectItem value="Maio">Maio</SelectItem>
+                      <SelectItem value="Junho">Junho</SelectItem>
+                      <SelectItem value="Julho">Julho</SelectItem>
+                      <SelectItem value="Agosto">Agosto</SelectItem>
+                      <SelectItem value="Setembro">Setembro</SelectItem>
+                      <SelectItem value="Outubro">Outubro</SelectItem>
+                      <SelectItem value="Novembro">Novembro</SelectItem>
+                      <SelectItem value="Dezembro">Dezembro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
         <div className="flex gap-2">
