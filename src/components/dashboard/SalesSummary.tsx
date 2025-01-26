@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Filter } from "lucide-react";
+import { Plus, FileText, Filter, RefreshCw } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -25,102 +25,79 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useQuery } from "@tanstack/react-query";
 
-const data = [
-  { name: "Jan", sales: 4000 },
-  { name: "Fev", sales: 3000 },
-  { name: "Mar", sales: 2000 },
-  { name: "Abr", sales: 2780 },
-  { name: "Mai", sales: 1890 },
-  { name: "Jun", sales: 2390 },
-];
+const getCurrentMonthData = () => {
+  // Simulated API call - replace with actual API
+  console.log("Fetching current month sales data");
+  const currentDate = new Date();
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  
+  return Array.from({ length: daysInMonth }, (_, i) => ({
+    name: `${i + 1}`,
+    sales: Math.floor(Math.random() * 10000),
+  }));
+};
 
 export const SalesSummary = () => {
   const currentMonth = new Date().toLocaleString('pt-PT', { month: 'long' });
   const currentYear = new Date().getFullYear();
 
+  const { data: salesData, refetch } = useQuery({
+    queryKey: ['currentMonthSales'],
+    queryFn: getCurrentMonthData,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
   return (
-    <Card className="w-full">
+    <Card className="w-full dark:border-border">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Sumário de Vendas</CardTitle>
+          <CardTitle className="text-foreground">Sumário de Vendas</CardTitle>
           <div className="flex items-center gap-2 mt-4">
             <span className="text-sm text-muted-foreground">
               {currentMonth} {currentYear}
             </span>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filtros
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Filtros</SheetTitle>
-                  <SheetDescription>
-                    Ajuste os filtros para visualizar dados específicos
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="space-y-4 mt-4">
-                  <Select defaultValue={currentYear.toString()}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Ano" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2024">2024</SelectItem>
-                      <SelectItem value="2023">2023</SelectItem>
-                      <SelectItem value="2022">2022</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select defaultValue={currentMonth}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Mês" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Janeiro">Janeiro</SelectItem>
-                      <SelectItem value="Fevereiro">Fevereiro</SelectItem>
-                      <SelectItem value="Março">Março</SelectItem>
-                      <SelectItem value="Abril">Abril</SelectItem>
-                      <SelectItem value="Maio">Maio</SelectItem>
-                      <SelectItem value="Junho">Junho</SelectItem>
-                      <SelectItem value="Julho">Julho</SelectItem>
-                      <SelectItem value="Agosto">Agosto</SelectItem>
-                      <SelectItem value="Setembro">Setembro</SelectItem>
-                      <SelectItem value="Outubro">Outubro</SelectItem>
-                      <SelectItem value="Novembro">Novembro</SelectItem>
-                      <SelectItem value="Dezembro">Dezembro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => refetch()}
+              className="hover:bg-accent hover:text-accent-foreground"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 text-foreground">
             <FileText className="h-4 w-4" />
             Ver Todas as Vendas
           </Button>
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
             <Plus className="mr-2 h-4 w-4" /> Registar Venda
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold mb-4">€245,890</div>
+        <div className="text-2xl font-bold mb-4 text-foreground">€245,890</div>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+            <LineChart data={salesData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis 
+                dataKey="name" 
+                stroke="currentColor"
+                className="text-muted-foreground"
+              />
+              <YAxis 
+                stroke="currentColor"
+                className="text-muted-foreground"
+              />
               <Tooltip />
               <Line
                 type="monotone"
                 dataKey="sales"
-                stroke="#4CAF50"
+                stroke="hsl(var(--primary))"
                 strokeWidth={2}
               />
             </LineChart>

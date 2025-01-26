@@ -6,68 +6,86 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
-const contracts = [
-  {
-    id: 1,
-    client: "Acme Corp",
-    operator: "John Doe",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    client: "Globex Corp",
-    operator: "Jane Smith",
-    status: "Signed",
-  },
-  {
-    id: 3,
-    client: "Initech",
-    operator: "Bob Johnson",
-    status: "Pending",
-  },
-];
+const getContracts = () => {
+  // Simulated API call - replace with actual API
+  console.log("Fetching contracts data");
+  return [
+    {
+      id: 1,
+      clientName: "João Silva",
+      operator: "Maria Santos",
+      status: "Pendente",
+    },
+    {
+      id: 2,
+      clientName: "António Costa",
+      operator: "Pedro Oliveira",
+      status: "Assinado",
+    },
+    {
+      id: 3,
+      clientName: "Ana Pereira",
+      operator: "Sara Martins",
+      status: "Pendente",
+    },
+  ];
+};
 
 export const PendingContracts = () => {
+  const navigate = useNavigate();
+  const { data: contracts, refetch } = useQuery({
+    queryKey: ['contracts'],
+    queryFn: getContracts,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Pending Contracts</CardTitle>
+    <Card className="dark:border-border">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-foreground">Atualizações de Vendas</CardTitle>
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={() => refetch()}
+          className="hover:bg-accent hover:text-accent-foreground"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Client Name</TableHead>
-              <TableHead>Operator</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="text-foreground">Nome do Cliente</TableHead>
+              <TableHead className="text-foreground">Vendedor</TableHead>
+              <TableHead className="text-foreground">Estado</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {contracts.map((contract) => (
-              <TableRow key={contract.id}>
-                <TableCell>{contract.client}</TableCell>
-                <TableCell>{contract.operator}</TableCell>
+            {contracts?.map((contract) => (
+              <TableRow 
+                key={contract.id}
+                className="cursor-pointer hover:bg-accent/50"
+                onClick={() => navigate(`/pending-contracts?id=${contract.id}`)}
+              >
+                <TableCell className="font-medium text-foreground">
+                  {contract.clientName}
+                </TableCell>
+                <TableCell className="text-foreground">{contract.operator}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={contract.status === "Pending" ? "secondary" : "default"}
+                    variant={contract.status === "Pendente" ? "secondary" : "default"}
+                    className="text-foreground"
                   >
                     {contract.status}
                   </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      Approve
-                    </Button>
-                    <Button variant="destructive" size="sm">
-                      Reject
-                    </Button>
-                  </div>
                 </TableCell>
               </TableRow>
             ))}
