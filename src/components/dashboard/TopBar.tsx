@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, User, Sun, Moon } from "lucide-react";
+import { Bell, ChevronDown, Sun, Moon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,28 +8,41 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const TopBar = () => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="h-16 border-b border-secondary flex items-center justify-between px-4 bg-background">
+    <div className="h-16 border-b border-border flex items-center justify-between px-4 bg-background">
       <div className="flex items-center gap-2">
         <h1 className="text-xl font-semibold">Vexor</h1>
       </div>
       
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
-          )}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="hover:bg-accent hover:text-accent-foreground"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{theme === "dark" ? "Modo Claro" : "Modo Noturno"}</p>
+          </TooltipContent>
+        </Tooltip>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
