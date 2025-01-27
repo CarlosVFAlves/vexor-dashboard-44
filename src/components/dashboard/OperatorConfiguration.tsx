@@ -1,8 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -15,47 +13,19 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-
-type OperatorType = 
-  | "MEO" | "NOS" | "VODAFONE" | "NOWO"
-  | "ENDESA" | "IBERDROLA" | "REPSOL" | "GALP" | "G9"
-  | "IBELECTRA" | "EDP" | "SU_ELETRICIDADE" | "GOLD_ENERGY"
-  | "MEO_ENERGIA" | "PLENITUDE";
-
-type ServiceType = 
-  | "1P_MOBILE"
-  | "1P_INTERNET"
-  | "2P_FIXED_CHANNELS"
-  | "2P_FIXED_INTERNET"
-  | "3P"
-  | "4P";
-
-const TELECOM_OPERATORS: OperatorType[] = ['MEO', 'NOS', 'VODAFONE', 'NOWO'];
-const ENERGY_OPERATORS: OperatorType[] = [
-  'ENDESA', 'IBERDROLA', 'REPSOL', 'GALP', 'G9', 
-  'IBELECTRA', 'EDP', 'SU_ELETRICIDADE', 'GOLD_ENERGY',
-  'MEO_ENERGIA', 'PLENITUDE'
-];
-
-const SERVICES: ServiceType[] = [
-  '1P_MOBILE',
-  '1P_INTERNET',
-  '2P_FIXED_CHANNELS',
-  '2P_FIXED_INTERNET',
-  '3P',
-  '4P'
-];
+import { ServiceConfigurationForm } from "./ServiceConfigurationForm";
+import { 
+  OperatorType, 
+  ServiceType, 
+  TELECOM_OPERATORS, 
+  ENERGY_OPERATORS, 
+  SERVICES 
+} from "@/types/operator";
 
 export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
   const { toast } = useToast();
   const [selectedOperator, setSelectedOperator] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
-  const [baseCommission, setBaseCommission] = useState<number>(0);
-  const [isMultiplier, setIsMultiplier] = useState<boolean>(false);
-  const [targetSalesCount, setTargetSalesCount] = useState<number>(0);
-  const [targetCommissionIncrease, setTargetCommissionIncrease] = useState<number>(0);
-  const [mobileServiceValue, setMobileServiceValue] = useState<number>(0);
-  const [mobileCreditsMultiplier, setMobileCreditsMultiplier] = useState<boolean>(false);
 
   const { data: operatorConfigs, refetch } = useQuery({
     queryKey: ['operatorConfigs', teamId],
@@ -142,18 +112,20 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
     }
   });
 
-  const handleSaveServiceConfig = () => {
+  const handleSaveServiceConfig = (config: {
+    baseCommission: number;
+    isMultiplier: boolean;
+    targetSalesCount: number;
+    targetCommissionIncrease: number;
+    mobileServiceValue: number;
+    mobileCreditsMultiplier: boolean;
+  }) => {
     if (!selectedOperator || !selectedService) return;
 
     createServiceConfigMutation.mutate({
       operatorConfigId: selectedOperator,
       serviceType: selectedService,
-      baseCommission,
-      isMultiplier,
-      targetSalesCount,
-      targetCommissionIncrease,
-      mobileServiceValue,
-      mobileCreditsMultiplier
+      ...config
     });
   };
 
@@ -254,79 +226,10 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
               </div>
 
               {selectedOperator && selectedService && (
-                <div className="space-y-4 p-4 bg-accent/50 rounded-md">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Valor da Comissão</Label>
-                      <Input
-                        type="number"
-                        placeholder="Digite o valor"
-                        value={baseCommission}
-                        onChange={(e) => setBaseCommission(Number(e.target.value))}
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="isMultiplier"
-                        checked={isMultiplier}
-                        onCheckedChange={(checked) => setIsMultiplier(!!checked)}
-                      />
-                      <Label htmlFor="isMultiplier">Usar como Multiplicador</Label>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Meta de Vendas para Aumento</Label>
-                      <Input
-                        type="number"
-                        placeholder="Número de vendas"
-                        value={targetSalesCount}
-                        onChange={(e) => setTargetSalesCount(Number(e.target.value))}
-                      />
-                    </div>
-                    <div>
-                      <Label>Valor do Aumento</Label>
-                      <Input
-                        type="number"
-                        placeholder="Valor do aumento"
-                        value={targetCommissionIncrease}
-                        onChange={(e) => setTargetCommissionIncrease(Number(e.target.value))}
-                      />
-                    </div>
-                  </div>
-
-                  {selectedService.includes('MOBILE') && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label>Valor do Serviço Móvel</Label>
-                        <Input
-                          type="number"
-                          placeholder="Valor do serviço"
-                          value={mobileServiceValue}
-                          onChange={(e) => setMobileServiceValue(Number(e.target.value))}
-                        />
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="mobileCreditsMultiplier"
-                          checked={mobileCreditsMultiplier}
-                          onCheckedChange={(checked) => setMobileCreditsMultiplier(!!checked)}
-                        />
-                        <Label htmlFor="mobileCreditsMultiplier">
-                          Ativar multiplicador de créditos
-                        </Label>
-                      </div>
-                    </div>
-                  )}
-
-                  <Button
-                    className="w-full"
-                    onClick={handleSaveServiceConfig}
-                  >
-                    Salvar Configuração
-                  </Button>
-                </div>
+                <ServiceConfigurationForm
+                  selectedService={selectedService}
+                  onSave={handleSaveServiceConfig}
+                />
               )}
             </div>
           )}
