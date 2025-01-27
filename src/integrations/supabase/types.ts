@@ -178,6 +178,41 @@ export type Database = {
         }
         Relationships: []
       }
+      operator_configurations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          operator: Database["public"]["Enums"]["operator_type"]
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          operator: Database["public"]["Enums"]["operator_type"]
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          operator?: Database["public"]["Enums"]["operator_type"]
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operator_configurations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "team_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales: {
         Row: {
           amount: number
@@ -201,6 +236,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      service_configurations: {
+        Row: {
+          base_commission: number
+          created_at: string
+          id: string
+          is_multiplier: boolean | null
+          mobile_credits_multiplier: boolean | null
+          mobile_service_value: number | null
+          operator_config_id: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          target_commission_increase: number | null
+          target_sales_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          base_commission?: number
+          created_at?: string
+          id?: string
+          is_multiplier?: boolean | null
+          mobile_credits_multiplier?: boolean | null
+          mobile_service_value?: number | null
+          operator_config_id?: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          target_commission_increase?: number | null
+          target_sales_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          base_commission?: number
+          created_at?: string
+          id?: string
+          is_multiplier?: boolean | null
+          mobile_credits_multiplier?: boolean | null
+          mobile_service_value?: number | null
+          operator_config_id?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          target_commission_increase?: number | null
+          target_sales_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_configurations_operator_config_id_fkey"
+            columns: ["operator_config_id"]
+            isOneToOne: false
+            referencedRelation: "operator_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_companies: {
         Row: {
@@ -242,6 +327,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          team_code: string | null
           team_leader_name: string | null
           team_name: string
           updated_at: string
@@ -249,6 +335,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          team_code?: string | null
           team_leader_name?: string | null
           team_name: string
           updated_at?: string
@@ -256,11 +343,57 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          team_code?: string | null
           team_leader_name?: string | null
           team_name?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      team_invitations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          invitation_code: string
+          team_id: string | null
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitation_code: string
+          team_id?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitation_code?: string
+          team_id?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "team_configurations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_invitations_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_members: {
         Row: {
@@ -295,7 +428,30 @@ export type Database = {
     }
     Enums: {
       company_category: "telecommunications" | "energy_gas"
+      operator_type:
+        | "MEO"
+        | "NOS"
+        | "VODAFONE"
+        | "NOWO"
+        | "ENDESA"
+        | "IBERDROLA"
+        | "REPSOL"
+        | "GALP"
+        | "G9"
+        | "IBELECTRA"
+        | "EDP"
+        | "SU_ELETRICIDADE"
+        | "GOLD_ENERGY"
+        | "MEO_ENERGIA"
+        | "PLENITUDE"
       package_type: "3P" | "4P_MARKET" | "4P_SPECIAL"
+      service_type:
+        | "1P_MOBILE"
+        | "1P_INTERNET"
+        | "2P_FIXED_CHANNELS"
+        | "2P_FIXED_INTERNET"
+        | "3P"
+        | "4P"
     }
     CompositeTypes: {
       [_ in never]: never
