@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           client_first_name: string
           client_last_name: string
+          client_tax_id: string | null
           created_at: string
           id: string
           operator: string
@@ -22,6 +23,7 @@ export type Database = {
         Insert: {
           client_first_name: string
           client_last_name: string
+          client_tax_id?: string | null
           created_at?: string
           id?: string
           operator: string
@@ -31,6 +33,7 @@ export type Database = {
         Update: {
           client_first_name?: string
           client_last_name?: string
+          client_tax_id?: string | null
           created_at?: string
           id?: string
           operator?: string

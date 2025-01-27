@@ -78,6 +78,7 @@ export const PendingContracts = () => {
               <TableHead className="text-foreground">ID do Vendedor</TableHead>
               <TableHead className="text-foreground">Nome do Vendedor</TableHead>
               <TableHead className="text-foreground">Nome do Cliente</TableHead>
+              <TableHead className="text-foreground">Contribuinte</TableHead>
               <TableHead className="text-foreground">Empresa</TableHead>
               <TableHead className="text-foreground">Estado</TableHead>
               <TableHead className="text-foreground">Ações</TableHead>
@@ -95,6 +96,9 @@ export const PendingContracts = () => {
                 <TableCell className="text-foreground">{contract.operator}</TableCell>
                 <TableCell className="text-foreground">
                   {`${contract.client_first_name} ${contract.client_last_name}`}
+                </TableCell>
+                <TableCell className="text-foreground">
+                  {contract.client_tax_id || "N/A"}
                 </TableCell>
                 <TableCell className="text-foreground">
                   {contract.company_name || "N/A"}
