@@ -22,16 +22,17 @@ const getTeamConfigurations = async () => {
 export const TeamConfiguration = () => {
   const { toast } = useToast();
   const [newTeamName, setNewTeamName] = useState("");
+  const [newTeamLeader, setNewTeamLeader] = useState("");
   const { data: teams, refetch } = useQuery({
     queryKey: ['teamConfigurations'],
     queryFn: getTeamConfigurations
   });
 
   const handleAddTeam = async () => {
-    if (!newTeamName.trim()) {
+    if (!newTeamName.trim() || !newTeamLeader.trim()) {
       toast({
         title: "Erro",
-        description: "Por favor, insira um nome para a equipa.",
+        description: "Por favor, preencha todos os campos.",
         variant: "destructive"
       });
       return;
@@ -39,7 +40,10 @@ export const TeamConfiguration = () => {
 
     const { error } = await supabase
       .from('team_configurations')
-      .insert([{ team_name: newTeamName.trim() }]);
+      .insert([{ 
+        team_name: newTeamName.trim(),
+        team_leader_name: newTeamLeader.trim()
+      }]);
 
     if (error) {
       toast({
@@ -55,6 +59,7 @@ export const TeamConfiguration = () => {
       description: "Equipa adicionada com sucesso!"
     });
     setNewTeamName("");
+    setNewTeamLeader("");
     refetch();
   };
 
@@ -90,8 +95,8 @@ export const TeamConfiguration = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="flex gap-2">
-            <div className="flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="teamName">Nome da Equipa</Label>
               <Input
                 id="teamName"
@@ -100,22 +105,35 @@ export const TeamConfiguration = () => {
                 placeholder="Digite o nome da equipa"
               />
             </div>
-            <Button 
-              onClick={handleAddTeam}
-              className="mt-6"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar
-            </Button>
+            <div>
+              <Label htmlFor="teamLeader">Chefe de Equipa</Label>
+              <Input
+                id="teamLeader"
+                value={newTeamLeader}
+                onChange={(e) => setNewTeamLeader(e.target.value)}
+                placeholder="Digite o nome do chefe de equipa"
+              />
+            </div>
           </div>
+          <Button 
+            onClick={handleAddTeam}
+            className="w-full md:w-auto"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Equipa
+          </Button>
 
           <div className="space-y-2">
             {teams?.map((team) => (
               <div 
                 key={team.id}
-                className="flex items-center justify-between p-2 rounded-md bg-accent/50"
+                className="flex items-center justify-between p-4 rounded-md bg-accent/50"
               >
-                <span className="text-foreground">{team.team_name}</span>
+                <div className="space-y-1">
+                  <div className="text-sm text-muted-foreground">ID: {team.id}</div>
+                  <div className="font-medium">{team.team_name}</div>
+                  <div className="text-sm">Chefe: {team.team_leader_name}</div>
+                </div>
                 <Button
                   variant="ghost"
                   size="icon"
