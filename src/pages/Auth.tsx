@@ -44,9 +44,6 @@ const Auth = () => {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: window.location.origin,
-        },
       });
 
       if (error) throw error;
@@ -67,16 +64,16 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <Card className="w-[400px]">
-        <CardHeader>
-          <CardTitle>Bem-vindo à VEXOR</CardTitle>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-[400px]">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Bem-vindo à VEXOR</CardTitle>
           <CardDescription>
-            Faça login ou crie sua conta para continuar.
+            Faça login ou crie sua conta para continuar
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="space-y-4">
+          <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Criar Conta</TabsTrigger>
