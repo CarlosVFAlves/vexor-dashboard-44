@@ -220,41 +220,6 @@ export type Database = {
         }
         Relationships: []
       }
-      operator_configurations: {
-        Row: {
-          created_at: string
-          id: string
-          is_active: boolean | null
-          operator: Database["public"]["Enums"]["operator_type"]
-          team_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          operator: Database["public"]["Enums"]["operator_type"]
-          team_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          operator?: Database["public"]["Enums"]["operator_type"]
-          team_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "operator_configurations_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "team_configurations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           created_at: string
@@ -343,15 +308,7 @@ export type Database = {
           target_sales_count?: number | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "service_configurations_operator_config_id_fkey"
-            columns: ["operator_config_id"]
-            isOneToOne: false
-            referencedRelation: "operator_configurations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       team_companies: {
         Row: {
