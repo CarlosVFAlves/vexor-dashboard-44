@@ -100,6 +100,7 @@ export const OperatorConfigSidebar = () => {
           {selectedOperator && (
             <ServiceConfigurationForm
               selectedService={selectedService}
+              onServiceSelect={setSelectedService}
               onSave={(config) => {
                 console.log('Saving config:', config);
                 // Implement save logic
