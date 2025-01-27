@@ -32,9 +32,10 @@ export const TeamConfiguration = () => {
           team_invitations(
             *,
             used_by(*)
-          )
+          ),
+          team_members(*)
         `)
-        .maybeSingle(); // Changed from .single() to .maybeSingle()
+        .maybeSingle();
 
       if (teamError) throw teamError;
 
@@ -51,7 +52,8 @@ export const TeamConfiguration = () => {
             team_invitations(
               *,
               used_by(*)
-            )
+            ),
+            team_members(*)
           `)
           .single();
 
@@ -59,18 +61,7 @@ export const TeamConfiguration = () => {
         return newTeam;
       }
 
-      // Get all team members who have used invitations for this team
-      const { data: teamMembers, error: membersError } = await supabase
-        .from('team_members')
-        .select('*')
-        .eq('team_id', teamData.id);
-
-      if (membersError) throw membersError;
-
-      return {
-        ...teamData,
-        team_members: teamMembers || []
-      };
+      return teamData;
     }
   });
 
