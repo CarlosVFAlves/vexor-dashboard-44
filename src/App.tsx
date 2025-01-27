@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import PendingContracts from "./pages/PendingContracts";
 import PendingPayments from "./pages/PendingPayments";
 import TeamConfig from "./pages/TeamConfig";
+import Products from "./pages/Products";
+import Creative from "./pages/Creative";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +25,8 @@ const App = () => (
             <Route path="/pending-contracts" element={<PendingContracts />} />
             <Route path="/pending-payments" element={<PendingPayments />} />
             <Route path="/team-config" element={<TeamConfig />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/creative" element={<Creative />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

@@ -20,7 +20,7 @@ export const TopBar = () => {
   return (
     <div className="h-16 border-b border-border flex items-center justify-between px-4 bg-background">
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-semibold">Vexor</h1>
+        <span className="text-sm font-medium text-muted-foreground">Chefe de Equipa</span>
       </div>
       
       <div className="flex items-center gap-4">
