@@ -22,17 +22,34 @@ export const TeamConfiguration = () => {
   const { data: team, refetch } = useQuery({
     queryKey: ['teamConfiguration'],
     queryFn: async () => {
+      // First, get the team configuration and its invitations
       const { data: teamData, error: teamError } = await supabase
         .from('team_configurations')
         .select(`
           *,
-          team_invitations(*),
-          team_members(*)
+          team_invitations(
+            *,
+            used_by(*)
+          )
         `)
         .single();
 
       if (teamError) throw teamError;
-      return teamData;
+
+      // Get all team members who have used invitations for this team
+      const { data: teamMembers, error: membersError } = await supabase
+        .from('team_members')
+        .select('*')
+        .in('id', teamData.team_invitations
+          .filter(invite => invite.used_by)
+          .map(invite => invite.used_by));
+
+      if (membersError) throw membersError;
+
+      return {
+        ...teamData,
+        team_members: teamMembers || []
+      };
     }
   });
 
