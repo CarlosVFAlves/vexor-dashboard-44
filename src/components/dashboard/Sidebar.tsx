@@ -1,4 +1,4 @@
-import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings, Grid, List, Palette } from "lucide-react";
+import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings, Grid, List, Palette, Ticket, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -23,6 +23,7 @@ const menuItems = [
   { icon: BarChart3, label: "Métricas da Equipa", path: "/metrics" },
   { icon: Users, label: "Perfil", path: "/profile" },
   { icon: Palette, label: "Criativos", path: "/creative" },
+  { icon: Ticket, label: "Tickets", path: "/tickets" },
 ];
 
 const bottomMenuItems = [
@@ -115,7 +116,7 @@ export const DashboardSidebar = () => {
           <div className="p-4">
             <Button 
               variant="outline" 
-              className="w-full"
+              className="w-full text-foreground hover:bg-destructive hover:text-destructive-foreground"
               onClick={handleLogout}
             >
               <LogOut className="mr-2 h-4 w-4" />
