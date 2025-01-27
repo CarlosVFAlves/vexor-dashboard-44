@@ -9,8 +9,16 @@ import {
   TELECOM_OPERATORS, 
   ENERGY_OPERATORS, 
   ServiceType,
-  OperatorType 
+  OperatorType,
+  SERVICES
 } from "@/types/operator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const OperatorConfigSidebar = () => {
   const [open, setOpen] = useState(false);
@@ -96,16 +104,37 @@ export const OperatorConfigSidebar = () => {
             )}
           </div>
 
-          {/* Service Configuration Form */}
+          {/* Service Selection */}
           {selectedOperator && (
-            <ServiceConfigurationForm
-              selectedService={selectedService}
-              onServiceSelect={setSelectedService}
-              onSave={(config) => {
-                console.log('Saving config:', config);
-                // Implement save logic
-              }}
-            />
+            <div className="space-y-4">
+              <Label>Selecione o Serviço</Label>
+              <Select
+                value={selectedService || ""}
+                onValueChange={(value) => setSelectedService(value as ServiceType)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Escolha um serviço" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SERVICES.map((service) => (
+                    <SelectItem key={service} value={service}>
+                      {service.replace(/_/g, ' ')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Service Configuration Form */}
+              {selectedService && (
+                <ServiceConfigurationForm
+                  selectedService={selectedService}
+                  onSave={(config) => {
+                    console.log('Saving config:', config);
+                    // Implement save logic
+                  }}
+                />
+              )}
+            </div>
           )}
         </div>
       </SheetContent>
