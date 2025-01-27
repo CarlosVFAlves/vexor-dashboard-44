@@ -213,6 +213,30 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sales: {
         Row: {
           amount: number
@@ -444,6 +468,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      app_role: "ADMIN" | "LIDER" | "BACKOFFICE" | "VENDEDOR"
       company_category: "telecommunications" | "energy_gas"
       operator_type:
         | "MEO"
