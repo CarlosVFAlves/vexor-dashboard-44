@@ -1,21 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Filter, RefreshCw } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Plus, FileText, RefreshCw } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -26,28 +11,79 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
-const getCurrentMonthData = () => {
-  // Simulated API call - replace with actual API
+const getCurrentMonthData = async () => {
   console.log("Fetching current month sales data");
-  const currentDate = new Date();
-  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-  
-  return Array.from({ length: daysInMonth }, (_, i) => ({
-    name: `${i + 1}`,
-    sales: Math.floor(Math.random() * 10000),
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const { data, error } = await supabase
+    .from('sales')
+    .select('amount, sale_date')
+    .gte('sale_date', startOfMonth.toISOString())
+    .order('sale_date', { ascending: true });
+
+  if (error) throw error;
+
+  // Group by date and sum amounts
+  const salesByDate = data.reduce((acc: any, curr) => {
+    const date = new Date(curr.sale_date).getDate().toString();
+    if (!acc[date]) acc[date] = 0;
+    acc[date] += Number(curr.amount);
+    return acc;
+  }, {});
+
+  // Convert to array format for chart
+  return Object.entries(salesByDate).map(([date, sales]) => ({
+    name: date,
+    sales,
   }));
 };
 
 export const SalesSummary = () => {
+  const { toast } = useToast();
   const currentMonth = new Date().toLocaleString('pt-PT', { month: 'long' });
   const currentYear = new Date().getFullYear();
+  const [totalSales, setTotalSales] = useState(0);
 
   const { data: salesData, refetch } = useQuery({
     queryKey: ['currentMonthSales'],
     queryFn: getCurrentMonthData,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('sales_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'sales' },
+        () => {
+          console.log('Sales data changed, refetching...');
+          refetch();
+          toast({
+            title: "Dados de vendas atualizados",
+            description: "Os dados foram atualizados em tempo real.",
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch, toast]);
+
+  useEffect(() => {
+    if (salesData) {
+      const total = salesData.reduce((sum, item) => sum + (item.sales as number), 0);
+      setTotalSales(total);
+    }
+  }, [salesData]);
 
   return (
     <Card className="w-full dark:border-border">
@@ -79,7 +115,9 @@ export const SalesSummary = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold mb-4 text-foreground">€245,890</div>
+        <div className="text-2xl font-bold mb-4 text-foreground">
+          €{totalSales.toLocaleString('pt-PT')}
+        </div>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={salesData}>

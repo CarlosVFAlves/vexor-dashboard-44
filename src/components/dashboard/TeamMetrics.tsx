@@ -11,26 +11,54 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
-const getTeamData = () => {
-  // Simulated API call - replace with actual API
+const getTeamData = async () => {
   console.log("Fetching team metrics data");
-  return [
-    { name: "João", sales: Math.floor(Math.random() * 200), target: 150 },
-    { name: "Maria", sales: Math.floor(Math.random() * 200), target: 150 },
-    { name: "António", sales: Math.floor(Math.random() * 200), target: 150 },
-    { name: "Ana", sales: Math.floor(Math.random() * 200), target: 150 },
-    { name: "Pedro", sales: Math.floor(Math.random() * 200), target: 150 },
-    { name: "Sara", sales: Math.floor(Math.random() * 200), target: 150 },
-  ];
+  const { data, error } = await supabase
+    .from('team_members')
+    .select('*');
+
+  if (error) throw error;
+
+  return data.map(member => ({
+    name: member.name,
+    sales: Math.floor(Math.random() * 200), // This should be replaced with actual sales data
+    target: member.sales_target
+  }));
 };
 
 export const TeamMetrics = () => {
+  const { toast } = useToast();
   const { data, refetch } = useQuery({
     queryKey: ['teamMetrics'],
     queryFn: getTeamData,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('team_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'team_members' },
+        () => {
+          console.log('Team data changed, refetching...');
+          refetch();
+          toast({
+            title: "Dados da equipe atualizados",
+            description: "Os dados foram atualizados em tempo real.",
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch, toast]);
 
   return (
     <Card className="dark:border-border">

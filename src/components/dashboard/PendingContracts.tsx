@@ -12,39 +12,51 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
-const getContracts = () => {
-  // Simulated API call - replace with actual API
+const getContracts = async () => {
   console.log("Fetching contracts data");
-  return [
-    {
-      id: 1,
-      clientName: "João Silva",
-      operator: "Maria Santos",
-      status: "Pendente",
-    },
-    {
-      id: 2,
-      clientName: "António Costa",
-      operator: "Pedro Oliveira",
-      status: "Assinado",
-    },
-    {
-      id: 3,
-      clientName: "Ana Pereira",
-      operator: "Sara Martins",
-      status: "Pendente",
-    },
-  ];
+  const { data, error } = await supabase
+    .from('contracts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
 };
 
 export const PendingContracts = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { data: contracts, refetch } = useQuery({
     queryKey: ['contracts'],
     queryFn: getContracts,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('contracts_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'contracts' },
+        () => {
+          console.log('Contracts data changed, refetching...');
+          refetch();
+          toast({
+            title: "Contratos atualizados",
+            description: "Os dados foram atualizados em tempo real.",
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch, toast]);
 
   return (
     <Card className="dark:border-border">
@@ -76,7 +88,7 @@ export const PendingContracts = () => {
                 onClick={() => navigate(`/pending-contracts?id=${contract.id}`)}
               >
                 <TableCell className="font-medium text-foreground">
-                  {contract.clientName}
+                  {`${contract.client_first_name} ${contract.client_last_name}`}
                 </TableCell>
                 <TableCell className="text-foreground">{contract.operator}</TableCell>
                 <TableCell>
