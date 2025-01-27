@@ -34,9 +34,30 @@ export const TeamConfiguration = () => {
             used_by(*)
           )
         `)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
       if (teamError) throw teamError;
+
+      // If no team exists, create one
+      if (!teamData) {
+        const { data: newTeam, error: createError } = await supabase
+          .from('team_configurations')
+          .insert([{
+            team_name: 'My Team',
+            team_code: generateInvitationCode()
+          }])
+          .select(`
+            *,
+            team_invitations(
+              *,
+              used_by(*)
+            )
+          `)
+          .single();
+
+        if (createError) throw createError;
+        return newTeam;
+      }
 
       // Get all team members who have used invitations for this team
       const { data: teamMembers, error: membersError } = await supabase
