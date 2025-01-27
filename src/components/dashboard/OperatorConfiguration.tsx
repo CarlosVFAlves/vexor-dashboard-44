@@ -1,13 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Settings } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,11 +14,11 @@ import {
   ENERGY_OPERATORS, 
   SERVICES 
 } from "@/types/operator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
   const { toast } = useToast();
   const [selectedOperator, setSelectedOperator] = useState<string | null>(null);
-  const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
 
   const { data: operatorConfigs, refetch } = useQuery({
     queryKey: ['operatorConfigs', teamId],
@@ -66,69 +59,6 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
     }
   });
 
-  const createServiceConfigMutation = useMutation({
-    mutationFn: async ({
-      operatorConfigId,
-      serviceType,
-      baseCommission,
-      isMultiplier,
-      targetSalesCount,
-      targetCommissionIncrease,
-      mobileServiceValue,
-      mobileCreditsMultiplier
-    }: {
-      operatorConfigId: string;
-      serviceType: ServiceType;
-      baseCommission: number;
-      isMultiplier: boolean;
-      targetSalesCount?: number;
-      targetCommissionIncrease?: number;
-      mobileServiceValue?: number;
-      mobileCreditsMultiplier?: boolean;
-    }) => {
-      const { data, error } = await supabase
-        .from('service_configurations')
-        .insert([{
-          operator_config_id: operatorConfigId,
-          service_type: serviceType,
-          base_commission: baseCommission,
-          is_multiplier: isMultiplier,
-          target_sales_count: targetSalesCount,
-          target_commission_increase: targetCommissionIncrease,
-          mobile_service_value: mobileServiceValue,
-          mobile_credits_multiplier: mobileCreditsMultiplier
-        }])
-        .select();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      refetch();
-      toast({
-        title: "Sucesso",
-        description: "Serviço configurado com sucesso!"
-      });
-    }
-  });
-
-  const handleSaveServiceConfig = (config: {
-    baseCommission: number;
-    isMultiplier: boolean;
-    targetSalesCount: number;
-    targetCommissionIncrease: number;
-    mobileServiceValue: number;
-    mobileCreditsMultiplier: boolean;
-  }) => {
-    if (!selectedOperator || !selectedService) return;
-
-    createServiceConfigMutation.mutate({
-      operatorConfigId: selectedOperator,
-      serviceType: selectedService,
-      ...config
-    });
-  };
-
   return (
     <Card className="mt-4">
       <CardHeader>
@@ -139,6 +69,13 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
+          <Alert>
+            <AlertDescription>
+              Selecione os operadores com os quais sua equipe trabalha. Após selecionar um operador,
+              você poderá configurar as comissões e regras específicas para cada serviço oferecido.
+            </AlertDescription>
+          </Alert>
+
           <div>
             <Label className="text-lg font-semibold">Telecomunicações</Label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
@@ -150,10 +87,16 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                     onCheckedChange={(checked) => {
                       if (checked) {
                         createOperatorConfigMutation.mutate(operator);
+                        setSelectedOperator(operator);
                       }
                     }}
                   />
-                  <Label htmlFor={operator}>{operator}</Label>
+                  <Label 
+                    htmlFor={operator}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {operator}
+                  </Label>
                 </div>
               ))}
             </div>
@@ -161,7 +104,7 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
 
           <div>
             <Label className="text-lg font-semibold">Energia</Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
               {ENERGY_OPERATORS.map((operator) => (
                 <div key={operator} className="flex items-center space-x-2">
                   <Checkbox
@@ -170,68 +113,32 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                     onCheckedChange={(checked) => {
                       if (checked) {
                         createOperatorConfigMutation.mutate(operator);
+                        setSelectedOperator(operator);
                       }
                     }}
                   />
-                  <Label htmlFor={operator}>{operator}</Label>
+                  <Label 
+                    htmlFor={operator}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {operator.replace(/_/g, ' ')}
+                  </Label>
                 </div>
               ))}
             </div>
           </div>
 
-          {operatorConfigs && operatorConfigs.length > 0 && (
-            <div className="mt-6 space-y-4">
-              <Label className="text-lg font-semibold">Configurar Serviços</Label>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Selecione o Operador</Label>
-                  <Select
-                    value={selectedOperator || ''}
-                    onValueChange={setSelectedOperator}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um operador" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {operatorConfigs.map((config) => (
-                        <SelectItem key={config.id} value={config.id}>
-                          {config.operator}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedOperator && (
-                  <div>
-                    <Label>Selecione o Serviço</Label>
-                    <Select
-                      value={selectedService || ''}
-                      onValueChange={(value) => setSelectedService(value as ServiceType)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um serviço" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SERVICES.map((service) => (
-                          <SelectItem key={service} value={service}>
-                            {service.replace(/_/g, ' ')}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-              </div>
-
-              {selectedOperator && selectedService && (
-                <ServiceConfigurationForm
-                  selectedService={selectedService}
-                  onSave={handleSaveServiceConfig}
-                />
-              )}
-            </div>
+          {selectedOperator && operatorConfigs?.find(config => config.operator === selectedOperator) && (
+            <ServiceConfigurationForm
+              operatorConfig={operatorConfigs.find(config => config.operator === selectedOperator)!}
+              onSuccess={() => {
+                refetch();
+                toast({
+                  title: "Sucesso",
+                  description: "Configurações do serviço atualizadas com sucesso!"
+                });
+              }}
+            />
           )}
         </div>
       </CardContent>
