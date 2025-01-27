@@ -16,14 +16,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 
-const TELECOM_OPERATORS = ['MEO', 'NOS', 'VODAFONE', 'NOWO'];
-const ENERGY_OPERATORS = [
+type OperatorType = 
+  | "MEO" | "NOS" | "VODAFONE" | "NOWO"
+  | "ENDESA" | "IBERDROLA" | "REPSOL" | "GALP" | "G9"
+  | "IBELECTRA" | "EDP" | "SU_ELETRICIDADE" | "GOLD_ENERGY"
+  | "MEO_ENERGIA" | "PLENITUDE";
+
+type ServiceType = 
+  | "1P_MOBILE"
+  | "1P_INTERNET"
+  | "2P_FIXED_CHANNELS"
+  | "2P_FIXED_INTERNET"
+  | "3P"
+  | "4P";
+
+const TELECOM_OPERATORS: OperatorType[] = ['MEO', 'NOS', 'VODAFONE', 'NOWO'];
+const ENERGY_OPERATORS: OperatorType[] = [
   'ENDESA', 'IBERDROLA', 'REPSOL', 'GALP', 'G9', 
   'IBELECTRA', 'EDP', 'SU_ELETRICIDADE', 'GOLD_ENERGY',
   'MEO_ENERGIA', 'PLENITUDE'
 ];
 
-const SERVICES = {
+const SERVICES: {
+  TELECOM: ServiceType[];
+} = {
   TELECOM: [
     '1P_MOBILE',
     '1P_INTERNET',
@@ -37,7 +53,13 @@ const SERVICES = {
 export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
   const { toast } = useToast();
   const [selectedOperator, setSelectedOperator] = useState<string | null>(null);
-  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
+  const [baseCommission, setBaseCommission] = useState<number>(0);
+  const [isMultiplier, setIsMultiplier] = useState<boolean>(false);
+  const [targetSalesCount, setTargetSalesCount] = useState<number>(0);
+  const [targetCommissionIncrease, setTargetCommissionIncrease] = useState<number>(0);
+  const [mobileServiceValue, setMobileServiceValue] = useState<number>(0);
+  const [mobileCreditsMultiplier, setMobileCreditsMultiplier] = useState<boolean>(false);
 
   const { data: operatorConfigs, refetch } = useQuery({
     queryKey: ['operatorConfigs', teamId],
@@ -56,7 +78,7 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
   });
 
   const createOperatorConfigMutation = useMutation({
-    mutationFn: async (operator: string) => {
+    mutationFn: async (operator: OperatorType) => {
       const { data, error } = await supabase
         .from('operator_configurations')
         .insert([{
@@ -90,7 +112,7 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
       mobileCreditsMultiplier
     }: {
       operatorConfigId: string;
-      serviceType: string;
+      serviceType: ServiceType;
       baseCommission: number;
       isMultiplier: boolean;
       targetSalesCount?: number;
@@ -123,6 +145,21 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
       });
     }
   });
+
+  const handleSaveServiceConfig = () => {
+    if (!selectedOperator || !selectedService) return;
+
+    createServiceConfigMutation.mutate({
+      operatorConfigId: selectedOperator,
+      serviceType: selectedService,
+      baseCommission,
+      isMultiplier,
+      targetSalesCount,
+      targetCommissionIncrease,
+      mobileServiceValue,
+      mobileCreditsMultiplier
+    });
+  };
 
   return (
     <Card className="mt-4">
@@ -203,7 +240,7 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                     <Label>Selecione o Serviço</Label>
                     <Select
                       value={selectedService || ''}
-                      onValueChange={setSelectedService}
+                      onValueChange={(value) => setSelectedService(value as ServiceType)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um serviço" />
@@ -228,13 +265,16 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                       <Input
                         type="number"
                         placeholder="Digite o valor"
-                        onChange={(e) => {
-                          // Handle commission value change
-                        }}
+                        value={baseCommission}
+                        onChange={(e) => setBaseCommission(Number(e.target.value))}
                       />
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="isMultiplier" />
+                      <Checkbox 
+                        id="isMultiplier"
+                        checked={isMultiplier}
+                        onCheckedChange={(checked) => setIsMultiplier(!!checked)}
+                      />
                       <Label htmlFor="isMultiplier">Usar como Multiplicador</Label>
                     </div>
                   </div>
@@ -245,6 +285,8 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                       <Input
                         type="number"
                         placeholder="Número de vendas"
+                        value={targetSalesCount}
+                        onChange={(e) => setTargetSalesCount(Number(e.target.value))}
                       />
                     </div>
                     <div>
@@ -252,6 +294,8 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                       <Input
                         type="number"
                         placeholder="Valor do aumento"
+                        value={targetCommissionIncrease}
+                        onChange={(e) => setTargetCommissionIncrease(Number(e.target.value))}
                       />
                     </div>
                   </div>
@@ -263,10 +307,16 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                         <Input
                           type="number"
                           placeholder="Valor do serviço"
+                          value={mobileServiceValue}
+                          onChange={(e) => setMobileServiceValue(Number(e.target.value))}
                         />
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="mobileCreditsMultiplier" />
+                        <Checkbox 
+                          id="mobileCreditsMultiplier"
+                          checked={mobileCreditsMultiplier}
+                          onCheckedChange={(checked) => setMobileCreditsMultiplier(!!checked)}
+                        />
                         <Label htmlFor="mobileCreditsMultiplier">
                           Ativar multiplicador de créditos
                         </Label>
@@ -276,9 +326,7 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
 
                   <Button
                     className="w-full"
-                    onClick={() => {
-                      // Handle service configuration save
-                    }}
+                    onClick={handleSaveServiceConfig}
                   >
                     Salvar Configuração
                   </Button>
