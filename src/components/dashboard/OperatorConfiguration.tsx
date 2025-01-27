@@ -13,7 +13,7 @@ import {
 import { Settings } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 type OperatorType = 
@@ -37,18 +37,14 @@ const ENERGY_OPERATORS: OperatorType[] = [
   'MEO_ENERGIA', 'PLENITUDE'
 ];
 
-const SERVICES: {
-  TELECOM: ServiceType[];
-} = {
-  TELECOM: [
-    '1P_MOBILE',
-    '1P_INTERNET',
-    '2P_FIXED_CHANNELS',
-    '2P_FIXED_INTERNET',
-    '3P',
-    '4P'
-  ]
-};
+const SERVICES: ServiceType[] = [
+  '1P_MOBILE',
+  '1P_INTERNET',
+  '2P_FIXED_CHANNELS',
+  '2P_FIXED_INTERNET',
+  '3P',
+  '4P'
+];
 
 export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
   const { toast } = useToast();
@@ -246,7 +242,7 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                         <SelectValue placeholder="Selecione um serviço" />
                       </SelectTrigger>
                       <SelectContent>
-                        {SERVICES.TELECOM.map((service) => (
+                        {SERVICES.map((service) => (
                           <SelectItem key={service} value={service}>
                             {service.replace(/_/g, ' ')}
                           </SelectItem>
