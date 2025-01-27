@@ -20,19 +20,35 @@ export const BlogPosts = () => {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching posts:", error);
+        throw error;
+      }
       return data;
     },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Get the current user's session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError || !session) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para criar um post.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase.from("blog_posts").insert([
         {
           title,
           content,
-          author_id: (await supabase.auth.getUser()).data.user?.id,
+          author_id: session.user.id,
         },
       ]);
 
@@ -48,6 +64,7 @@ export const BlogPosts = () => {
       setShowNewPostForm(false);
       refetch();
     } catch (error) {
+      console.error("Error creating post:", error);
       toast({
         title: "Erro ao criar post",
         description: "Ocorreu um erro ao criar o post. Tente novamente.",
