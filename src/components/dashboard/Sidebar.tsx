@@ -14,7 +14,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
   { icon: Home, label: "Sumário de Vendas", path: "/" },
-  { icon: FileText, label: "Contratos Pendentes", path: "/contracts" },
+  { icon: FileText, label: "Contratos Pendentes", path: "/pending-contracts" },
   { icon: BarChart3, label: "Métricas da Equipa", path: "/metrics" },
   { icon: Users, label: "Perfil", path: "/profile" },
 ];
@@ -30,7 +30,7 @@ export const DashboardSidebar = () => {
       </div>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navegação</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-foreground">Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -38,7 +38,7 @@ export const DashboardSidebar = () => {
                   <SidebarMenuButton
                     onClick={() => navigate(item.path)}
                     className={cn(
-                      "w-full",
+                      "w-full text-foreground hover:bg-accent hover:text-accent-foreground",
                       location.pathname === item.path && "bg-primary/20 text-primary"
                     )}
                   >

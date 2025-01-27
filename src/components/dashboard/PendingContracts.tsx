@@ -9,7 +9,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -61,7 +61,7 @@ export const PendingContracts = () => {
   return (
     <Card className="dark:border-border">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-foreground">Atualizações de Vendas</CardTitle>
+        <CardTitle className="text-foreground">Contratos Pendentes</CardTitle>
         <Button 
           variant="outline" 
           size="icon"
@@ -75,22 +75,30 @@ export const PendingContracts = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="text-foreground">ID do Vendedor</TableHead>
+              <TableHead className="text-foreground">Nome do Vendedor</TableHead>
               <TableHead className="text-foreground">Nome do Cliente</TableHead>
-              <TableHead className="text-foreground">Vendedor</TableHead>
+              <TableHead className="text-foreground">Empresa</TableHead>
               <TableHead className="text-foreground">Estado</TableHead>
+              <TableHead className="text-foreground">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {contracts?.map((contract) => (
               <TableRow 
                 key={contract.id}
-                className="cursor-pointer hover:bg-accent/50"
-                onClick={() => navigate(`/pending-contracts?id=${contract.id}`)}
+                className="hover:bg-accent/50"
               >
                 <TableCell className="font-medium text-foreground">
-                  {`${contract.client_first_name} ${contract.client_last_name}`}
+                  {contract.id.slice(0, 8)}
                 </TableCell>
                 <TableCell className="text-foreground">{contract.operator}</TableCell>
+                <TableCell className="text-foreground">
+                  {`${contract.client_first_name} ${contract.client_last_name}`}
+                </TableCell>
+                <TableCell className="text-foreground">
+                  {contract.company_name || "N/A"}
+                </TableCell>
                 <TableCell>
                   <Badge
                     variant={contract.status === "Pendente" ? "secondary" : "default"}
@@ -98,6 +106,17 @@ export const PendingContracts = () => {
                   >
                     {contract.status}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/pending-contracts?id=${contract.id}`)}
+                    className="text-foreground hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Visualizar Contrato
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
