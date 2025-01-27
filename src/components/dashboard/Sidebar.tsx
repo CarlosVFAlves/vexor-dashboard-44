@@ -1,4 +1,4 @@
-import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign } from "lucide-react";
+import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -20,6 +20,7 @@ const menuItems = [
   { icon: FileText, label: "Contratos Pendentes", path: "/pending-contracts" },
   { icon: DollarSign, label: "Pagamentos Pendentes", path: "/pending-payments" },
   { icon: BarChart3, label: "Métricas da Equipa", path: "/metrics" },
+  { icon: Settings, label: "Configuração de Equipas", path: "/team-config" },
   { icon: Users, label: "Perfil", path: "/profile" },
 ];
 
@@ -29,7 +30,6 @@ export const DashboardSidebar = () => {
   const { toast } = useToast();
 
   const handleRegisterSale = () => {
-    // TODO: Implement sale registration modal/form
     toast({
       title: "Registar Venda",
       description: "Funcionalidade em desenvolvimento",

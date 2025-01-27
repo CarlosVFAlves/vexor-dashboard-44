@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Index from "./pages/Index";
 import PendingContracts from "./pages/PendingContracts";
 import PendingPayments from "./pages/PendingPayments";
+import TeamConfig from "./pages/TeamConfig";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/pending-contracts" element={<PendingContracts />} />
             <Route path="/pending-payments" element={<PendingPayments />} />
+            <Route path="/team-config" element={<TeamConfig />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
