@@ -23,7 +23,7 @@ type TeamMember = {
 export const TeamConfiguration = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
     // Check current session
@@ -50,7 +50,7 @@ export const TeamConfiguration = () => {
   const { data: team, refetch } = useQuery({
     queryKey: ['teamConfiguration'],
     queryFn: async () => {
-      if (!session) return null;
+      if (!session?.user?.email) return null;
 
       const { data: teamData, error: teamError } = await supabase
         .from('team_configurations')
@@ -71,7 +71,8 @@ export const TeamConfiguration = () => {
           .from('team_configurations')
           .insert([{
             team_name: 'My Team',
-            team_code: generateInvitationCode()
+            team_code: generateInvitationCode(),
+            team_leader_name: session.user.email // Set the team leader name
           }])
           .select(`
             *,
