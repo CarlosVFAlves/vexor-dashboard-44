@@ -5,6 +5,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ServiceConfigurationForm } from "./ServiceConfigurationForm";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   TELECOM_OPERATORS, 
   ENERGY_OPERATORS, 
@@ -31,6 +33,26 @@ export const OperatorConfigSidebar = () => {
     document.addEventListener('openOperatorConfig', handleOpen);
     return () => document.removeEventListener('openOperatorConfig', handleOpen);
   }, []);
+
+  const { data: operatorConfig } = useQuery({
+    queryKey: ['operatorConfig', selectedOperator],
+    queryFn: async () => {
+      if (!selectedOperator) return null;
+
+      const { data, error } = await supabase
+        .from('operator_configurations')
+        .select(`
+          *,
+          service_configurations(*)
+        `)
+        .eq('operator', selectedOperator)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedOperator
+  });
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -104,8 +126,8 @@ export const OperatorConfigSidebar = () => {
             )}
           </div>
 
-          {/* Service Selection */}
-          {selectedOperator && (
+          {/* Service Selection and Configuration */}
+          {selectedOperator && operatorConfig && (
             <div className="space-y-4">
               <Label>Selecione o Serviço</Label>
               <Select
@@ -127,10 +149,9 @@ export const OperatorConfigSidebar = () => {
               {/* Service Configuration Form */}
               {selectedService && (
                 <ServiceConfigurationForm
-                  selectedService={selectedService}
-                  onSave={(config) => {
-                    console.log('Saving config:', config);
-                    // Implement save logic
+                  operatorConfig={operatorConfig}
+                  onSuccess={() => {
+                    setSelectedService(null);
                   }}
                 />
               )}
