@@ -13,6 +13,7 @@ import PendingPayments from "./pages/PendingPayments";
 import TeamConfig from "./pages/TeamConfig";
 import Products from "./pages/Products";
 import Creative from "./pages/Creative";
+import ExternalSales from "./pages/ExternalSales";
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,14 @@ const App = () => (
               element={
                 <PrivateRoute>
                   <Creative />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/external-sales"
+              element={
+                <PrivateRoute>
+                  <ExternalSales />
                 </PrivateRoute>
               }
             />

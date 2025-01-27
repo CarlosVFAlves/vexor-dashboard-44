@@ -220,6 +220,41 @@ export type Database = {
         }
         Relationships: []
       }
+      operator_configurations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          operator: string
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          operator: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          operator?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operator_configurations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "team_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -277,7 +312,7 @@ export type Database = {
           mobile_credits_multiplier: boolean | null
           mobile_service_value: number | null
           operator_config_id: string | null
-          service_type: Database["public"]["Enums"]["service_type"]
+          service_type: string
           target_commission_increase: number | null
           target_sales_count: number | null
           updated_at: string
@@ -290,7 +325,7 @@ export type Database = {
           mobile_credits_multiplier?: boolean | null
           mobile_service_value?: number | null
           operator_config_id?: string | null
-          service_type: Database["public"]["Enums"]["service_type"]
+          service_type: string
           target_commission_increase?: number | null
           target_sales_count?: number | null
           updated_at?: string
@@ -303,12 +338,20 @@ export type Database = {
           mobile_credits_multiplier?: boolean | null
           mobile_service_value?: number | null
           operator_config_id?: string | null
-          service_type?: Database["public"]["Enums"]["service_type"]
+          service_type?: string
           target_commission_increase?: number | null
           target_sales_count?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "service_configurations_operator_config_id_fkey"
+            columns: ["operator_config_id"]
+            isOneToOne: false
+            referencedRelation: "operator_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_companies: {
         Row: {

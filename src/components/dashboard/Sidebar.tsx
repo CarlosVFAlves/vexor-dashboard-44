@@ -1,4 +1,4 @@
-import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings, Grid, List, Palette, Ticket, MessageSquare } from "lucide-react";
+import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings, Grid, List, Palette, Ticket, MessageSquare, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -24,6 +24,7 @@ const menuItems = [
   { icon: Users, label: "Perfil", path: "/profile" },
   { icon: Palette, label: "Criativos", path: "/creative" },
   { icon: Ticket, label: "Tickets", path: "/tickets" },
+  { icon: ExternalLink, label: "Vendas Externas", path: "/external-sales" },
 ];
 
 const bottomMenuItems = [
@@ -42,6 +43,14 @@ export const DashboardSidebar = () => {
     });
   };
 
+  const handleExternalSale = () => {
+    navigate("/external-sales");
+    toast({
+      title: "Solicitar Venda Externa",
+      description: "Redirecionando para vendas externas",
+    });
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
@@ -54,7 +63,8 @@ export const DashboardSidebar = () => {
   return (
     <Sidebar>
       <div className="p-4">
-        <img src="/vexor-logo.png" alt="Vexor" className="h-8 w-auto" />
+        <img src="/lovable-uploads/d4be44e3-cf29-4c0b-bf74-afcb58de6f3b.png" alt="Vexor" className="h-6 w-auto dark:hidden" />
+        <img src="/lovable-uploads/e60e2354-1e06-4ff9-8ba7-cf325c11a432.png" alt="Vexor" className="h-6 w-auto hidden dark:block" />
         <div className="mt-1 text-xs text-muted-foreground">v0.01 Alpha</div>
       </div>
       <SidebarContent>
@@ -80,7 +90,7 @@ export const DashboardSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="mt-4 px-4">
+        <div className="mt-4 px-4 space-y-2">
           <Button 
             variant="default" 
             className="w-full bg-primary hover:bg-primary/90"
@@ -88,6 +98,15 @@ export const DashboardSidebar = () => {
           >
             <Plus className="mr-2 h-4 w-4" />
             Registar Venda
+          </Button>
+
+          <Button 
+            variant="outline" 
+            className="w-full border-primary text-primary hover:bg-primary/10"
+            onClick={handleExternalSale}
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Solicitar Venda Externa
           </Button>
         </div>
 
