@@ -9,6 +9,88 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chargebacks: {
+        Row: {
+          amount: number
+          client_name: string
+          created_at: string
+          id: string
+          reason: string
+          seller_id: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          client_name: string
+          created_at?: string
+          id?: string
+          reason: string
+          seller_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          client_name?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          seller_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chargebacks_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commission_configurations: {
+        Row: {
+          category: string
+          commission_value: number
+          created_at: string
+          id: string
+          mobile_quantity: number | null
+          package_type: Database["public"]["Enums"]["package_type"] | null
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          commission_value: number
+          created_at?: string
+          id?: string
+          mobile_quantity?: number | null
+          package_type?: Database["public"]["Enums"]["package_type"] | null
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          commission_value?: number
+          created_at?: string
+          id?: string
+          mobile_quantity?: number | null
+          package_type?: Database["public"]["Enums"]["package_type"] | null
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_configurations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "team_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           active: boolean | null
@@ -129,6 +211,27 @@ export type Database = {
           },
         ]
       }
+      team_configurations: {
+        Row: {
+          created_at: string
+          id: string
+          team_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          team_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          team_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       team_members: {
         Row: {
           created_at: string
@@ -162,6 +265,7 @@ export type Database = {
     }
     Enums: {
       company_category: "telecommunications" | "energy_gas"
+      package_type: "3P" | "4P_MARKET" | "4P_SPECIAL"
     }
     CompositeTypes: {
       [_ in never]: never
