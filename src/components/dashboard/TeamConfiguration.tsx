@@ -5,6 +5,8 @@ import { Settings, UserPlus, Copy, User } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const generateInvitationCode = () => {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -20,11 +22,36 @@ type TeamMember = {
 
 export const TeamConfiguration = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const { data: team, refetch } = useQuery({
     queryKey: ['teamConfiguration'],
     queryFn: async () => {
-      // First, get the team configuration and its invitations
+      if (!session) return null;
+
       const { data: teamData, error: teamError } = await supabase
         .from('team_configurations')
         .select(`
@@ -39,7 +66,6 @@ export const TeamConfiguration = () => {
 
       if (teamError) throw teamError;
 
-      // If no team exists, create one
       if (!teamData) {
         const { data: newTeam, error: createError } = await supabase
           .from('team_configurations')
@@ -62,7 +88,8 @@ export const TeamConfiguration = () => {
       }
 
       return teamData;
-    }
+    },
+    enabled: !!session // Only run query when session exists
   });
 
   const createInvitationMutation = useMutation({
@@ -101,6 +128,10 @@ export const TeamConfiguration = () => {
       description: "Código copiado para a área de transferência!"
     });
   };
+
+  if (!session) {
+    return null;
+  }
 
   if (!team) {
     return (
