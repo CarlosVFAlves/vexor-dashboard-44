@@ -397,27 +397,44 @@ export type Database = {
       }
       team_members: {
         Row: {
+          commercial_code: string | null
           created_at: string
           id: string
           name: string
           sales_target: number
+          tax_id: string | null
+          team_id: string | null
           updated_at: string
         }
         Insert: {
+          commercial_code?: string | null
           created_at?: string
           id?: string
           name: string
           sales_target?: number
+          tax_id?: string | null
+          team_id?: string | null
           updated_at?: string
         }
         Update: {
+          commercial_code?: string | null
           created_at?: string
           id?: string
           name?: string
           sales_target?: number
+          tax_id?: string | null
+          team_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "team_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

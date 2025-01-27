@@ -13,6 +13,8 @@ const generateInvitationCode = () => {
 type TeamMember = {
   id: string;
   name: string;
+  tax_id: string | null;
+  commercial_code: string | null;
   sales_target: number;
 };
 
@@ -40,9 +42,7 @@ export const TeamConfiguration = () => {
       const { data: teamMembers, error: membersError } = await supabase
         .from('team_members')
         .select('*')
-        .in('id', teamData.team_invitations
-          .filter(invite => invite.used_by)
-          .map(invite => invite.used_by));
+        .eq('team_id', teamData.id);
 
       if (membersError) throw membersError;
 
@@ -165,7 +165,8 @@ export const TeamConfiguration = () => {
                   <div>
                     <p className="font-medium">{member.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      Meta de vendas: {member.sales_target}
+                      {member.tax_id && `NIF: ${member.tax_id}`}
+                      {member.commercial_code && ` | Código: ${member.commercial_code}`}
                     </p>
                   </div>
                   <div className="flex gap-2">
