@@ -2,7 +2,6 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { TeamDashboard } from "@/components/dashboard/TeamDashboard";
-import { OperatorConfigSidebar } from "@/components/dashboard/OperatorConfigSidebar";
 
 const TeamConfig = () => {
   return (
@@ -13,7 +12,6 @@ const TeamConfig = () => {
           <TopBar />
           <main className="p-4">
             <TeamDashboard />
-            <OperatorConfigSidebar />
           </main>
         </div>
       </div>
