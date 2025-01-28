@@ -22,6 +22,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+interface ServiceConfiguration {
+  id: string;
+  service_type: ServiceType;
+  base_commission: number;
+  is_multiplier: boolean;
+  target_sales_count: number | null;
+  target_commission_increase: number | null;
+  mobile_service_value: number | null;
+  mobile_credits_multiplier: boolean;
+}
+
+interface OperatorConfig {
+  id: string;
+  operator: string;
+  service_configurations: ServiceConfiguration[];
+}
+
 export const OperatorConfigSidebar = () => {
   const [open, setOpen] = useState(false);
   const [selectedOperator, setSelectedOperator] = useState<OperatorType | null>(null);
@@ -42,14 +59,37 @@ export const OperatorConfigSidebar = () => {
       const { data, error } = await supabase
         .from('operator_configurations')
         .select(`
-          *,
-          service_configurations(*)
+          id,
+          operator,
+          service_configurations (
+            id,
+            service_type,
+            base_commission,
+            is_multiplier,
+            target_sales_count,
+            target_commission_increase,
+            mobile_service_value,
+            mobile_credits_multiplier
+          )
         `)
         .eq('operator', selectedOperator)
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Transform the service_type to ensure it matches ServiceType
+      const transformedData = {
+        ...data,
+        service_configurations: data.service_configurations.map((config: any) => ({
+          ...config,
+          service_type: config.service_type as ServiceType,
+          target_sales_count: config.target_sales_count || null,
+          target_commission_increase: config.target_commission_increase || null,
+          mobile_service_value: config.mobile_service_value || null,
+        }))
+      };
+
+      return transformedData as OperatorConfig;
     },
     enabled: !!selectedOperator
   });

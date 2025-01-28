@@ -16,6 +16,23 @@ import {
 } from "@/types/operator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+interface ServiceConfiguration {
+  id: string;
+  service_type: ServiceType;
+  base_commission: number;
+  is_multiplier: boolean;
+  target_sales_count: number | null;
+  target_commission_increase: number | null;
+  mobile_service_value: number | null;
+  mobile_credits_multiplier: boolean;
+}
+
+interface OperatorConfig {
+  id: string;
+  operator: string;
+  service_configurations: ServiceConfiguration[];
+}
+
 export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
   const { toast } = useToast();
   const [selectedOperator, setSelectedOperator] = useState<string | null>(null);
@@ -26,13 +43,34 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
       const { data, error } = await supabase
         .from('operator_configurations')
         .select(`
-          *,
-          service_configurations(*)
+          id,
+          operator,
+          service_configurations (
+            id,
+            service_type,
+            base_commission,
+            is_multiplier,
+            target_sales_count,
+            target_commission_increase,
+            mobile_service_value,
+            mobile_credits_multiplier
+          )
         `)
         .eq('team_id', teamId);
 
       if (error) throw error;
-      return data;
+
+      // Transform the service_type to ensure it matches ServiceType
+      return data?.map(config => ({
+        ...config,
+        service_configurations: config.service_configurations.map((service: any) => ({
+          ...service,
+          service_type: service.service_type as ServiceType,
+          target_sales_count: service.target_sales_count || null,
+          target_commission_increase: service.target_commission_increase || null,
+          mobile_service_value: service.mobile_service_value || null,
+        }))
+      })) as OperatorConfig[];
     }
   });
 
@@ -91,12 +129,7 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                       }
                     }}
                   />
-                  <Label 
-                    htmlFor={operator}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {operator}
-                  </Label>
+                  <Label htmlFor={operator}>{operator}</Label>
                 </div>
               ))}
             </div>
@@ -117,12 +150,7 @@ export const OperatorConfiguration = ({ teamId }: { teamId: string }) => {
                       }
                     }}
                   />
-                  <Label 
-                    htmlFor={operator}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {operator.replace(/_/g, ' ')}
-                  </Label>
+                  <Label htmlFor={operator}>{operator.replace(/_/g, ' ')}</Label>
                 </div>
               ))}
             </div>
