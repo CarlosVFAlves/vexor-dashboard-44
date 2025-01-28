@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ServiceConfigurationForm } from "@/components/dashboard/ServiceConfigurationForm";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ServiceType } from "@/types/operator";
 
 const Products = () => {
   const [selectedOperator, setSelectedOperator] = useState<string | null>(null);
@@ -35,7 +36,15 @@ const Products = () => {
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Type assertion to ensure service_type is treated as ServiceType
+      return data ? {
+        ...data,
+        service_configurations: data.service_configurations.map(config => ({
+          ...config,
+          service_type: config.service_type as ServiceType
+        }))
+      } : null;
     },
     enabled: !!selectedOperator
   });
