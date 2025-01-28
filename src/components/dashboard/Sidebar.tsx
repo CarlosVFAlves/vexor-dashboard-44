@@ -1,4 +1,4 @@
-import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings, Grid, List, Palette, Ticket, ExternalLink, Shield } from "lucide-react";
+import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings, Grid, List, Palette, Ticket, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -72,6 +72,7 @@ export const DashboardSidebar = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('supabase.auth.token');
     navigate("/auth");
     toast({
       title: "Logout efetuado com sucesso",
@@ -91,20 +92,6 @@ export const DashboardSidebar = () => {
           <SidebarGroupLabel className="text-foreground">Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => navigate("/admin")}
-                    className={cn(
-                      "w-full text-foreground hover:bg-accent hover:text-accent-foreground",
-                      location.pathname === "/admin" && "bg-primary/20 text-primary"
-                    )}
-                  >
-                    <Shield className="h-5 w-5" />
-                    <span>Painel de Administração</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton

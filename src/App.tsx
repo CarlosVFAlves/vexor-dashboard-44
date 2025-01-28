@@ -15,8 +15,19 @@ import TeamConfig from "./pages/TeamConfig";
 import Products from "./pages/Products";
 import Creative from "./pages/Creative";
 import ExternalSales from "./pages/ExternalSales";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+// Persistir sessão em localStorage
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    localStorage.setItem('supabase.auth.token', session.access_token);
+  }
+  if (event === 'SIGNED_OUT') {
+    localStorage.removeItem('supabase.auth.token');
+  }
+});
 
 const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) => {
   const [session, setSession] = useState<any>(null);
@@ -25,6 +36,15 @@ const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNo
 
   useEffect(() => {
     const checkSession = async () => {
+      // Tentar recuperar sessão do localStorage
+      const storedToken = localStorage.getItem('supabase.auth.token');
+      if (storedToken) {
+        await supabase.auth.setSession({
+          access_token: storedToken,
+          refresh_token: '',
+        });
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
 
@@ -149,6 +169,7 @@ const App = () => (
                 </PrivateRoute>
               }
             />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
