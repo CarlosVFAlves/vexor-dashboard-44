@@ -20,16 +20,6 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Persistir sessão em localStorage
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_IN' && session) {
-    localStorage.setItem('supabase.auth.token', session.access_token);
-  }
-  if (event === 'SIGNED_OUT') {
-    localStorage.removeItem('supabase.auth.token');
-  }
-});
-
 const UnauthorizedRedirect = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
@@ -81,20 +71,34 @@ const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNo
         if (session) {
           const { data: profile, error } = await supabase
             .from('profiles')
-            .select('role')
+            .select('role, email')
             .eq('id', session.user.id)
             .single();
 
           if (error) {
             console.error('Error fetching profile:', error);
             setIsAdmin(false);
+            toast.error("Erro ao verificar permissões", {
+              description: "Não foi possível verificar suas permissões de acesso.",
+            });
           } else {
             setIsAdmin(profile?.role === 'ADMIN');
+            // Mostrar notificação com informações do usuário
+            toast.success("Bem-vindo!", {
+              description: `Usuário: ${profile.email}\nRole: ${profile.role}`,
+            });
           }
+        } else {
+          toast.error("Acesso Negado", {
+            description: "Você precisa estar logado para acessar esta página.",
+          });
         }
       } catch (error) {
         console.error('Error checking session:', error);
         setIsAdmin(false);
+        toast.error("Erro de Autenticação", {
+          description: "Ocorreu um erro ao verificar sua sessão.",
+        });
       } finally {
         setLoading(false);
       }
@@ -109,11 +113,16 @@ const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNo
       if (session) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, email')
           .eq('id', session.user.id)
           .single();
 
-        setIsAdmin(profile?.role === 'ADMIN');
+        if (profile) {
+          setIsAdmin(profile.role === 'ADMIN');
+          toast.success("Sessão Atualizada", {
+            description: `Usuário: ${profile.email}\nRole: ${profile.role}`,
+          });
+        }
       }
     });
 

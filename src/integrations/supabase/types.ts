@@ -9,38 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          id: string
-          email: string
-          role: 'ADMIN' | 'LIDER' | 'BACKOFFICE' | 'VENDEDOR'
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id: string
-          email: string
-          role?: 'ADMIN' | 'LIDER' | 'BACKOFFICE' | 'VENDEDOR'
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          email?: string
-          role?: 'ADMIN' | 'LIDER' | 'BACKOFFICE' | 'VENDEDOR'
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       blog_posts: {
         Row: {
           author_id: string
@@ -67,88 +35,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      chargebacks: {
-        Row: {
-          amount: number
-          client_name: string
-          created_at: string
-          id: string
-          reason: string
-          seller_id: string | null
-          status: string | null
-          updated_at: string
-        }
-        Insert: {
-          amount: number
-          client_name: string
-          created_at?: string
-          id?: string
-          reason: string
-          seller_id?: string | null
-          status?: string | null
-          updated_at?: string
-        }
-        Update: {
-          amount?: number
-          client_name?: string
-          created_at?: string
-          id?: string
-          reason?: string
-          seller_id?: string | null
-          status?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chargebacks_seller_id_fkey"
-            columns: ["seller_id"]
-            isOneToOne: false
-            referencedRelation: "team_members"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      commission_configurations: {
-        Row: {
-          category: string
-          commission_value: number
-          created_at: string
-          id: string
-          mobile_quantity: number | null
-          package_type: Database["public"]["Enums"]["package_type"] | null
-          team_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          category: string
-          commission_value: number
-          created_at?: string
-          id?: string
-          mobile_quantity?: number | null
-          package_type?: Database["public"]["Enums"]["package_type"] | null
-          team_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          commission_value?: number
-          created_at?: string
-          id?: string
-          mobile_quantity?: number | null
-          package_type?: Database["public"]["Enums"]["package_type"] | null
-          team_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "commission_configurations_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "team_configurations"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       companies: {
         Row: {
@@ -286,6 +172,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       sales: {
         Row: {
@@ -553,7 +463,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: 'ADMIN' | 'LIDER' | 'BACKOFFICE' | 'VENDEDOR'
+      app_role: "ADMIN" | "LIDER" | "BACKOFFICE" | "VENDEDOR"
       company_category: "telecommunications" | "energy_gas"
       operator_type:
         | "MEO"
@@ -572,13 +482,6 @@ export type Database = {
         | "MEO_ENERGIA"
         | "PLENITUDE"
       package_type: "3P" | "4P_MARKET" | "4P_SPECIAL"
-      service_type:
-        | "1P_MOBILE"
-        | "1P_INTERNET"
-        | "2P_FIXED_CHANNELS"
-        | "2P_FIXED_INTERNET"
-        | "3P"
-        | "4P"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -595,7 +498,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -607,10 +510,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<
