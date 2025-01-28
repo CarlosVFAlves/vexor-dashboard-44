@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import PendingContracts from "./pages/PendingContracts";
@@ -28,6 +28,38 @@ supabase.auth.onAuthStateChange((event, session) => {
     localStorage.removeItem('supabase.auth.token');
   }
 });
+
+const UnauthorizedRedirect = () => {
+  const navigate = useNavigate();
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    const redirect = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      navigate(session ? "/" : "/auth");
+    }, 5000);
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(redirect);
+    };
+  }, [navigate]);
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <h1 className="text-4xl md:text-6xl font-bold text-center mb-6">
+        Epa! Você não tem acesso a esta página.
+      </h1>
+      <p className="text-xl md:text-2xl text-muted-foreground text-center mb-8">
+        Redirecionando em {countdown} segundos...
+      </p>
+    </div>
+  );
+};
 
 const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) => {
   const [session, setSession] = useState<any>(null);
@@ -82,7 +114,11 @@ const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNo
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (!session) {
@@ -90,7 +126,7 @@ const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNo
   }
 
   if (adminOnly && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return <UnauthorizedRedirect />;
   }
 
   return <>{children}</>;
@@ -117,7 +153,7 @@ const App = () => (
               path="/"
               element={
                 <PrivateRoute>
-                  <Index />
+                  <Dashboard />
                 </PrivateRoute>
               }
             />
