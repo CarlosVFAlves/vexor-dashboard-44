@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-route
 import { ThemeProvider } from "@/components/theme-provider";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -34,13 +35,17 @@ const UnauthorizedRedirect = () => {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
+    toast.error("Acesso Negado", {
+      description: "Você não tem permissão para acessar esta página. (Erro: AUTH_ADMIN_001)",
+      duration: 5000,
+    });
+
     const timer = setInterval(() => {
       setCountdown((prev) => prev - 1);
     }, 1000);
 
-    const redirect = setTimeout(async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      navigate(session ? "/" : "/auth");
+    const redirect = setTimeout(() => {
+      navigate("/");
     }, 5000);
 
     return () => {
