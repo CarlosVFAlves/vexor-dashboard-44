@@ -65,32 +65,34 @@ const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNo
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
-      // Tentar recuperar sessão do localStorage
-      const storedToken = localStorage.getItem('supabase.auth.token');
-      if (storedToken) {
-        await supabase.auth.setSession({
-          access_token: storedToken,
-          refresh_token: '',
-        });
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+
+        if (session) {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          if (error) {
+            console.error('Error fetching profile:', error);
+            setIsAdmin(false);
+          } else {
+            setIsAdmin(profile?.role === 'ADMIN');
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        setIsAdmin(false);
+      } finally {
+        setLoading(false);
       }
-
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-
-      if (session) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-
-        setIsAdmin(profile?.role === 'ADMIN');
-      }
-      
-      setLoading(false);
     };
 
     checkSession();
