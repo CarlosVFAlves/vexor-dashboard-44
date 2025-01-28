@@ -9,6 +9,38 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          role: 'ADMIN' | 'LIDER' | 'BACKOFFICE' | 'VENDEDOR'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          role?: 'ADMIN' | 'LIDER' | 'BACKOFFICE' | 'VENDEDOR'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          role?: 'ADMIN' | 'LIDER' | 'BACKOFFICE' | 'VENDEDOR'
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string
@@ -521,7 +553,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "ADMIN" | "LIDER" | "BACKOFFICE" | "VENDEDOR"
+      app_role: 'ADMIN' | 'LIDER' | 'BACKOFFICE' | 'VENDEDOR'
       company_category: "telecommunications" | "energy_gas"
       operator_type:
         | "MEO"
@@ -563,7 +595,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -575,10 +607,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+      Row: infer R
+    }
+    ? R
+    : never
     : never
 
 export type TablesInsert<
