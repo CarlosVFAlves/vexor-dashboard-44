@@ -353,6 +353,36 @@ export type Database = {
           },
         ]
       }
+      site_configurations: {
+        Row: {
+          created_at: string
+          dark_logo_url: string | null
+          favicon_url: string | null
+          id: string
+          light_logo_url: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          dark_logo_url?: string | null
+          favicon_url?: string | null
+          id?: string
+          light_logo_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          dark_logo_url?: string | null
+          favicon_url?: string | null
+          id?: string
+          light_logo_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       team_companies: {
         Row: {
           company_id: string | null

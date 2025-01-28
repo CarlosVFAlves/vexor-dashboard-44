@@ -1,4 +1,4 @@
-import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings, Grid, List, Palette, Ticket, MessageSquare, ExternalLink } from "lucide-react";
+import { BarChart3, FileText, Home, Users, LogOut, Plus, DollarSign, Settings, Grid, List, Palette, Ticket, ExternalLink, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -14,6 +14,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
 
 const menuItems = [
   { icon: List, label: "Atualizações da Equipa", path: "/" },
@@ -35,6 +36,24 @@ export const DashboardSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        setIsAdmin(profile?.role === 'ADMIN');
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const handleRegisterSale = () => {
     toast({
@@ -72,6 +91,20 @@ export const DashboardSidebar = () => {
           <SidebarGroupLabel className="text-foreground">Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate("/admin")}
+                    className={cn(
+                      "w-full text-foreground hover:bg-accent hover:text-accent-foreground",
+                      location.pathname === "/admin" && "bg-primary/20 text-primary"
+                    )}
+                  >
+                    <Shield className="h-5 w-5" />
+                    <span>Painel de Administração</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton

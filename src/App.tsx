@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AdminDashboard from "./pages/AdminDashboard";
 import PendingContracts from "./pages/PendingContracts";
 import PendingPayments from "./pages/PendingPayments";
 import TeamConfig from "./pages/TeamConfig";
@@ -17,20 +18,44 @@ import ExternalSales from "./pages/ExternalSales";
 
 const queryClient = new QueryClient();
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
+
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        setIsAdmin(profile?.role === 'ADMIN');
+      }
+      
       setLoading(false);
-    });
+    };
+
+    checkSession();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        setIsAdmin(profile?.role === 'ADMIN');
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -42,6 +67,10 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!session) {
     return <Navigate to="/auth" replace />;
+  }
+
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -56,6 +85,14 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute adminOnly>
+                  <AdminDashboard />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/"
               element={
